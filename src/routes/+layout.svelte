@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount, type ComponentType } from 'svelte';
-	import Lenis from '@studio-freight/lenis';
+	import { onMount, type Component } from 'svelte';
+	import Lenis from 'lenis';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 	import cn from 'clsx';
@@ -19,6 +19,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 
 	import '$lib/styles/global.scss';
+	import Cursor from '$lib/components/Cursor.svelte';
 
 	let className = '';
 
@@ -34,7 +35,6 @@
 		}, 0);
 	}
 
-	let Cursor: ComponentType;
 	let hash = '';
 
 	useScroll(ScrollTrigger.update);
@@ -57,11 +57,11 @@
 
 	$: if (browser && $lenis && hash) {
 		const target = document.querySelector(hash);
-		$lenis.scrollTo(target, { offset: 0 });
+		$lenis.scrollTo(target as HTMLElement, { offset: 0 });
 	}
 
-	onMount(async () => {
-		Cursor = (await import('../lib/components/Cursor.svelte')).default;
+	onMount(() => {
+		// Cursor = import('../lib/components/Cursor.svelte').default;
 
 		window.history.scrollRestoration = 'manual';
 		window.scrollTo(0, 0);
@@ -114,6 +114,7 @@
 	<Scrollbar />
 	<main class="main"><slot /></main>
 	<Footer />
+	<Cursor />
 </div>
 
 <style lang="scss">

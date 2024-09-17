@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type ComponentType, createEventDispatcher } from 'svelte';
+	import { onMount, type Component, createEventDispatcher } from 'svelte';
 	import cn from 'clsx';
 
 	import { useRect } from '$lib/lifecycle-functions/useRect';
@@ -28,7 +28,7 @@
 		}
 	];
 
-	let AppearTitle: ComponentType;
+	let AppearTitle: Component;
 	let containerRef: HTMLDivElement;
 	let elementRef: HTMLDivElement;
 	let current: number = -1;

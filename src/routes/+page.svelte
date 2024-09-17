@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type ComponentType } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import cn from 'clsx';
 
 	import { lenisStore as lenis } from '$lib/stores/lenis';
@@ -28,12 +28,12 @@
 	import ListItem from '$lib/components/ListItem.svelte';
 	import Card from '$lib/components/Card.svelte';
 
-	let AppearTitle: ComponentType;
-	let SFDR: ComponentType;
-	let GitHub: ComponentType;
-	let Parallax: ComponentType;
-	let HorizontalSlides: ComponentType;
-	let FeatureCards: ComponentType;
+	let AppearTitle: Component;
+	let SFDR: Component;
+	let GitHub: Component;
+	let Parallax: Component;
+	let HorizontalSlides: Component;
+	let FeatureCards: Component;
 
 	let hasScrolled = false;
 	let visible = false;
@@ -490,7 +490,8 @@
 
 		:global(.icon-hero.show) {
 			@include desktop {
-				transition: transform $intro-duration var(--ease-out-expo),
+				transition:
+					transform $intro-duration var(--ease-out-expo),
 					opacity $intro-duration var(--ease-out-expo);
 				transition-delay: $delay-intro-top;
 				opacity: 1;
@@ -539,7 +540,9 @@
 			.scroll-hint {
 				position: relative;
 				grid-column: 1 / span 2;
-				transition: opacity 0.6s var(--ease-in-out-quad), transform 0.6s var(--ease-in-out-quad);
+				transition:
+					opacity 0.6s var(--ease-in-out-quad),
+					transform 0.6s var(--ease-in-out-quad);
 
 				.text {
 					font-family: var(--font-primary);
@@ -604,7 +607,8 @@
 				text-align: end;
 
 				@include desktop {
-					transition: transform calc($intro-duration - 200ms) var(--ease-out-expo),
+					transition:
+						transform calc($intro-duration - 200ms) var(--ease-out-expo),
 						opacity $intro-duration var(--ease-out-expo);
 					grid-column: 10 / -1;
 					opacity: 0.5;

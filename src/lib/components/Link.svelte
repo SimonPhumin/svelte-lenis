@@ -3,8 +3,8 @@
 
 	export { className as class };
 	export let href = '';
-	export let scroll = false;
-	export let shallow = false;
+	export const scroll = false;
+	export const shallow = false;
 
 	const SHALLOW_URLS = ['?demo=true'];
 

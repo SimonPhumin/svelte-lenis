@@ -19,7 +19,7 @@
 	let triggerRef: HTMLDivElement;
 	let targetRef: HTMLDivElement;
 
-	onMount(async () => {
+	onMount(() => {
 		const y = $size.width * speed * 0.1;
 
 		const setY = gsap.quickSetter(targetRef, 'y', 'px');

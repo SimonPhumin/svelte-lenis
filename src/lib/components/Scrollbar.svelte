@@ -27,8 +27,7 @@
 		const progress = clamp(0, y / innerHeight, 1);
 		const newPos = ($lenis?.limit || 0) * progress;
 
-		if ($lenis)
-			$lenis.direction === 'vertical' ? window.scrollTo(0, newPos) : window.scrollTo(newPos, 0);
+		if ($lenis) $lenis.direction === 0 ? window.scrollTo(0, newPos) : window.scrollTo(newPos, 0);
 	}
 
 	useScroll(({ scroll, limit }: { scroll: number; limit: number }) => {

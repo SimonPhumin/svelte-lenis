@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { onMount, type ComponentType } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 
 	import cn from 'clsx';
 
 	let className = '';
 
 	export { className as class };
-	export let icon: ComponentType;
+	export let icon: Component;
 	export let arrow = false;
 	export let href = '';
 
-	let Arrow: ComponentType;
+	let Arrow: Component;
 
 	onMount(async () => {
 		Arrow = (await import('./Icons/ArrowButtons.svelte')).default;
@@ -88,7 +88,9 @@
 
 			.visible {
 				position: relative;
-				transition: transform 600ms var(--ease-out-expo), opacity 600ms var(--ease-out-expo);
+				transition:
+					transform 600ms var(--ease-out-expo),
+					opacity 600ms var(--ease-out-expo);
 				transform: scaleY(1);
 				transform-origin: bottom;
 			}
@@ -101,7 +103,9 @@
 				width: 100%;
 				transform: scaleY(0);
 				opacity: 0;
-				transition: transform 600ms var(--ease-out-expo), opacity 400ms var(--ease-out-expo);
+				transition:
+					transform 600ms var(--ease-out-expo),
+					opacity 400ms var(--ease-out-expo);
 
 				:global(.arrow) {
 					transform: translate(-50%, 50%);

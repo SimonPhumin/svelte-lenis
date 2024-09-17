@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type ComponentType } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import cn from 'clsx';
 
 	let className = '';
@@ -11,7 +11,7 @@
 	export let visible = false;
 	export let index = 0;
 
-	let Arrow: ComponentType;
+	let Arrow: Component;
 
 	onMount(async () => {
 		Arrow = (await import('./Icons/ArrowDiagonal.svelte')).default;
@@ -144,7 +144,9 @@
 					transform: translateX(desktop-vw(16px));
 
 					:global(.arrow) {
-						transition: opacity 600ms var(--ease-out-expo), transform 600ms var(--ease-out-expo);
+						transition:
+							opacity 600ms var(--ease-out-expo),
+							transform 600ms var(--ease-out-expo);
 						opacity: 1;
 						transform: translate(0, 0);
 						transition-delay: 100ms;

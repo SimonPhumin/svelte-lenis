@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 	import cn from 'clsx';
 
 	let className = '';
 
 	export { className as class };
 	export let number: number | undefined = undefined;
-	export let text: string | ComponentType = '';
+	export let text: string | Component = '';
 	export let inverted = false;
 	export let background = 'rgba(14, 14, 14, 0.15)';
 </script>
