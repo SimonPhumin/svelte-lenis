@@ -31,7 +31,7 @@
 </a>
 
 <style lang="scss">
-	@import '../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.item {
 		position: relative;

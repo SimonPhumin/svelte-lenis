@@ -18,7 +18,7 @@
 </script>
 
 {#if href}
-	<a {href} class={cn('button', className, icon && 'has-icon')}>
+	<a {href} class={cn('button', className, 'has-icon')}>
 		{#if icon}<span class="icon"><svelte:component this={icon} class="arrow" /></span>{/if}
 		<span class="text">
 			<span class="visible">
@@ -32,7 +32,7 @@
 		</span>
 	</a>
 {:else}
-	<button class={cn('button', className, icon && 'has-icon')} on:click>
+	<button class={cn('button', className, 'has-icon')} on:click>
 		{#if icon}<span class="icon"><svelte:component this={icon} class="arrow" /></span>{/if}
 		<span class="text">
 			<span class="visible">
@@ -48,7 +48,7 @@
 {/if}
 
 <style lang="scss">
-	@import '$lib/styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.button {
 		display: flex;

@@ -63,7 +63,7 @@
 </footer>
 
 <style lang="scss">
-	@import '../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.footer {
 		// background-color: var(--theme-primary);

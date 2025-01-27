@@ -9,7 +9,7 @@
 </div>
 
 <style lang="scss">
-	@import '../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	$delay-intro-top: 450ms;
 	$intro-duration: 2050ms;

@@ -373,7 +373,7 @@
 </section>
 
 <style lang="scss">
-	@import '../lib/styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.home main {
 		> *:not(.canvas) {

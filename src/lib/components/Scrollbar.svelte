@@ -53,7 +53,7 @@
 </div>
 
 <style lang="scss">
-	@import '../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	// hide native scrollbar
 

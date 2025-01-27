@@ -18,7 +18,7 @@
 	import Scrollbar from '$lib/components/Scrollbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 
-	import '$lib/styles/global.scss';
+	import '../styles.css';
 	import Cursor from '$lib/components/Cursor.svelte';
 
 	let className = '';
@@ -118,7 +118,7 @@
 </div>
 
 <style lang="scss">
-	@import '../lib/styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.layout {
 		background-color: var(--theme-primary);

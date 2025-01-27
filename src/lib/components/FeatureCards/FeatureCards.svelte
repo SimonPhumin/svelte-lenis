@@ -85,7 +85,7 @@
 </div>
 
 <style lang="scss">
-	@import '../../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	.features {
 		height: 1600vh;

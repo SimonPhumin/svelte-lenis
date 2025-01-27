@@ -17,7 +17,7 @@
 </div>
 
 <style lang="scss">
-	@import '../styles/_functions';
+	@use '$lib/styles/_functions' as *;
 
 	$intro-out: 1500ms;
 
