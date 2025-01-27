@@ -41,7 +41,11 @@
 	"dependencies": {
 		"clsx": "^2.1.1",
 		"gsap": "^3.12.7",
+<<<<<<< HEAD
 		"lenis": "^1.1.20",
+=======
+		"lenis": "^1.1.19",
+>>>>>>> ceff5aa11402ff60d885bf08c4d075475411e7eb
 		"three": "^0.172.0",
 		"throttle-debounce": "^5.0.2"
 	}
