@@ -3,7 +3,10 @@ import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
 
-export const config = ts.config(
+export default [
+	{
+		ignores: ['.svelte-kit/**', 'node_modules/**', 'build/**', 'dist/**']
+	},
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs['flat/recommended'],
@@ -17,11 +20,10 @@ export const config = ts.config(
 	},
 	{
 		files: ['**/*.svelte'],
-		ignores: ['.svelte-kit/*', 'node_modules/*'],
 		languageOptions: {
 			parserOptions: {
 				parser: ts.parser
 			}
 		}
 	}
-);
+];
