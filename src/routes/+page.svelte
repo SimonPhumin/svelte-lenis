@@ -44,7 +44,7 @@
 	const [setCardsRectRef, cardsRect] = useRect();
 	const [setWhiteRectRef, whiteRect] = useRect();
 	const [setFeaturesRectRef, featuresRect] = useRect();
-	const [setInuseRectRef, inuseRect] = useRect();
+	const [setInuseRectRef, _inuseRect] = useRect();
 
 	let zoomWrapperRef: HTMLElement;
 	let whyRef: HTMLElement;
@@ -212,8 +212,8 @@
 		<aside class="features" bind:this={whyRef}>
 			<div class="feature">
 				<p class="p">
-					We’ve heard all the reasons to not use smooth scroll. It feels hacky. It’s inaccessible.
-					It’s not performant. It’s over-engineered. And historically, those were all true. But we
+					We've heard all the reasons to not use smooth scroll. It feels hacky. It's inaccessible.
+					It's not performant. It's over-engineered. And historically, those were all true. But we
 					like to imagine things as they could be, then build them. So, why should you use smooth
 					scroll?
 				</p>
@@ -223,13 +223,13 @@
 				<p class="p">
 					Unlock the creative potential and impact of your web experiences. Smoothing the scroll
 					pulls users into the flow of the experience that feels so substantial that they forget
-					they’re navigating a web page.
+					they're navigating a web page.
 				</p>
 			</div>
 			<div class="feature">
 				<h3 class="title h4">Normalize all your user inputs</h3>
 				<p class="p">
-					Give all your users the same (dope) experience whether they’re using trackpads, mouse
+					Give all your users the same (dope) experience whether they're using trackpads, mouse
 					wheels, or otherwise. With smooth scroll, you control how silky, heavy, or responsive the
 					experience should be — no matter the input. Magic!
 				</p>
@@ -261,21 +261,20 @@
 		<div class="comparison">
 			<svelte:component this={Parallax} speed={0.5}>
 				<p class="p">
-					We have to give props to libraries like{' '}
+					We have to give props to libraries like -
 					<Link
 						class="contrast semi-bold"
 						href="https://github.com/locomotivemtl/locomotive-scroll"
 					>
 						Locomotive Scroll
-					</Link>{' '}
-					and{' '}
+					</Link> - and -
 					<Link
 						class="contrast semi-bold"
 						href="https://greensock.com/docs/v3/Plugins/ScrollSmoother"
 					>
 						GSAP ScrollSmoother
 					</Link>
-					. They’re well built and well documented – and we’ve used them a lot. But they still have issues
+					. They're well built and well documented – and we've used them a lot. But they still have issues
 					that keep them from being bulletproof.
 				</p>
 			</svelte:component>
@@ -324,10 +323,10 @@
 	<div class="inner">
 		<div class="layout-block intro">
 			<p class="p-l">
-				Lenis is an{' '}
+				Lenis is an
 				<Link class="contrast semi-bold" href="https://github.com/studio-freight/lenis">
 					open-source library
-				</Link>{' '}
+				</Link>
 				built to standardize scroll experiences and sauce up websites with butter-smooth navigation,
 				all while using the platform and keeping it accessible.
 			</p>
