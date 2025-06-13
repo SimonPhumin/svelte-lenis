@@ -95,7 +95,6 @@
 
 	let type = 1;
 	let updateML = false;
-	const dummyArr = [0, 0, 0];
 	const speed = 1;
 	const rotationIntensity = 1;
 	const floatIntensity = 1;
@@ -221,7 +220,7 @@
 		});
 
 		return () => {
-			unsubscribe && unsubscribe();
+			if (unsubscribe) unsubscribe();
 		};
 	});
 
@@ -259,7 +258,7 @@
 			0
 		);
 		const _rotation = new Euler().fromArray(
-			dummyArr.map((_, i) => mapRange(0, 1, progress, from.rotation[i], to.rotation[i])) as [
+			[0, 0, 0].map((_, i) => mapRange(0, 1, progress, from.rotation[i], to.rotation[i])) as [
 				number,
 				number,
 				number

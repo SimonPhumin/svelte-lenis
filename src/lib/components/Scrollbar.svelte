@@ -8,26 +8,29 @@
 	import { useScroll } from '$lib/lifecycle-functions/useScroll';
 
 	let progressBar: HTMLDivElement;
-	let clicked = false;
 
 	const [size] = useWindowSize();
 
-	$: windowHeight = $size.height;
-
 	function onPointerUp() {
-		clicked = false;
+		// clicked = false;
 	}
 
 	function onPointerMove(e: MouseEvent) {
 		e.preventDefault();
 
-		const offset = (windowHeight - innerHeight) / 2;
-		const y = mapRange(0, windowHeight, e.clientY, -offset, innerHeight + offset);
+		const offset = ($size.height - innerHeight) / 2;
+		const y = mapRange(0, $size.height, e.clientY, -offset, innerHeight + offset);
 
 		const progress = clamp(0, y / innerHeight, 1);
 		const newPos = ($lenis?.limit || 0) * progress;
 
-		if ($lenis) $lenis.direction === 0 ? window.scrollTo(0, newPos) : window.scrollTo(newPos, 0);
+		if ($lenis) {
+			if ($lenis.direction === 0) {
+				window.scrollTo(0, newPos);
+			} else {
+				window.scrollTo(newPos, 0);
+			}
+		}
 	}
 
 	useScroll(({ scroll, limit }: { scroll: number; limit: number }) => {
@@ -36,8 +39,6 @@
 	});
 
 	onMount(() => {
-		if (!clicked) return;
-
 		window.addEventListener('pointermove', onPointerMove, false);
 		window.addEventListener('pointerup', onPointerUp, false);
 

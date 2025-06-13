@@ -14,7 +14,7 @@
 			</p>
 		</div>
 		<p class="last-line h1">
-			& open to <span class="hide-on-desktop">&nbsp;</span> features,{' '}
+			& open to <span class="hide-on-desktop">&nbsp;</span> features,
 			<br /> forks or prs &nbsp;
 		</p>
 		<!-- <Button
@@ -47,10 +47,9 @@
 			<a class="link p-xs" href="https://studiofreight.com">Website</a>
 			<a class="link p-xs" href="https://darkroom.studiofreight.com">Darkroom</a>
 		</div>
-		<p class="p-xs tm">
-			<span>©</span>
-			{new Date().getFullYear()} Studio Freight
-		</p>
+		<div class="footer__copyright">
+			© {new Date().getFullYear()} Studio Freight. All rights reserved
+		</div>
 		<!-- <Button
         class={cn(s.cta, 'hide-on-desktop')}
         arrow

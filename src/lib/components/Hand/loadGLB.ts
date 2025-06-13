@@ -1,25 +1,24 @@
+import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
-const loader = new GLTFLoader();
-
-// Optional: Provide a DRACOLoader instance to decode compressed mesh data
 const dracoLoader = new DRACOLoader();
-// dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
+dracoLoader.setDecoderPath('/draco/');
+
+const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
 
-export function loadGLB(path: string) {
-	return new Promise((res, rej) => {
+export function loadGLB(url: string): Promise<THREE.GLTF> {
+	return new Promise((resolve, reject) => {
 		loader.load(
-			path,
-			function (gltf) {
-				res(gltf);
+			url,
+			(gltf) => {
+				resolve(gltf);
 			},
-			function (xhr) {
-				// console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
-			},
-			function (error) {
-				console.log('An error happened');
+			undefined,
+			(error: unknown) => {
+				console.error('Error loading GLB:', error);
+				reject(error);
 			}
 		);
 	});

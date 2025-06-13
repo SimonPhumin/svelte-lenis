@@ -6,12 +6,7 @@
 	export const scroll = false;
 	export const shallow = false;
 
-	const SHALLOW_URLS = ['?demo=true'];
-
-	const needsShallow = !!SHALLOW_URLS.find((url) => href?.includes(url));
-
 	const isProtocol = href?.startsWith('mailto:') || href?.startsWith('tel:');
-	const isAnchor = href?.startsWith('#');
 	const isExternal = href?.startsWith('http');
 </script>
 

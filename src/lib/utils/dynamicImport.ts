@@ -1,6 +1,10 @@
-const imports: Record<string, Promise<any>> = {};
+interface DynamicModule {
+	default: unknown;
+}
 
-export async function dynamicImport(module: string, promise: Promise<any>) {
+const imports: Record<string, Promise<DynamicModule>> = {};
+
+export async function dynamicImport(module: string, promise: Promise<DynamicModule>) {
 	imports[module] = promise;
 	return (await promise).default;
 }

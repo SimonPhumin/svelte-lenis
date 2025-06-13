@@ -1,9 +1,12 @@
 import { onMount } from 'svelte';
 import { get } from 'svelte/store';
+import type Lenis from 'lenis';
 
 import { lenisStore } from '$lib/stores/lenis';
 
-export function useScroll(callback: (...args: any[]) => void) {
+type ScrollCallback = (lenis: Lenis) => void;
+
+export function useScroll(callback: ScrollCallback) {
 	const lenisVal = get(lenisStore);
 
 	const unsubscribe = lenisStore.subscribe((lenis) => {

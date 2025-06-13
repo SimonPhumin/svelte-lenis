@@ -15,6 +15,8 @@
 	let isLoaded = false;
 	let scroll = false;
 
+	const getEIClassName = () => cn($introOutStore && 'translate');
+
 	$: if (browser && $isMobile) {
 		document.documentElement.classList.toggle('intro', false);
 	}
@@ -35,8 +37,6 @@
 	$: if (browser && !scroll) {
 		document.documentElement.classList.toggle('intro', true);
 	}
-
-	$: EIClassName = cn($introOutStore && 'translate');
 
 	onMount(() => {
 		setTimeout(() => (isLoaded = true), 1000);
@@ -62,8 +62,8 @@
 
 <div class={cn('wrapper', isLoaded && 'out')} on:transitionend={onTransitionEnd}>
 	<div class={cn(isLoaded && 'relative')}>
-		<LNS {isLoaded} isIntro={true} fill={'var(--black)'} />
-		<EI {isLoaded} isIntro={true} fill={'var(--black)'} bind:class={EIClassName} />
+		<LNS {isLoaded} isIntro={true} fill="var(--black)" />
+		<EI {isLoaded} isIntro={true} fill="var(--black)" class={getEIClassName()} />
 	</div>
 </div>
 

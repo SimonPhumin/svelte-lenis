@@ -22,7 +22,6 @@
 	export let height = 250;
 	export let depth = 250;
 	export let count = 1000;
-	// export let scale = 100;
 	export let size = 100;
 
 	const positions = () => {
@@ -71,9 +70,6 @@
 		});
 
 		const dots = new Points(bufferGeometry, material);
-
-		// uniforms.uResolution.value.set(renderer.viewport.width, renderer.viewport.height);
-
 		renderer?.scene?.add(dots);
 
 		const unsubscribe = renderer?.onFrame(({ clock }) => {
@@ -81,7 +77,7 @@
 		});
 
 		return () => {
-			unsubscribe && unsubscribe();
+			if (unsubscribe) unsubscribe();
 		};
 	});
 

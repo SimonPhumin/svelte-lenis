@@ -3,9 +3,7 @@
 	import cn from 'clsx';
 
 	import { intersection } from '$lib/actions/intersection';
-	import { useMediaQuery } from '$lib/lifecycle-functions/useMediaQuery';
 	import { useRect } from '$lib/lifecycle-functions/useRect';
-	import { useWindowSize } from '$lib/lifecycle-functions/useWindowSize';
 
 	export let visible = true;
 
@@ -15,11 +13,6 @@
 	const emit = createEventDispatcher();
 
 	const [rectRef] = useRect();
-	const [size] = useWindowSize();
-	const isMobile = useMediaQuery('(max-width: 800px)');
-
-	$: if (!$isMobile) {
-	}
 
 	onMount(() => emit('mounted'));
 
