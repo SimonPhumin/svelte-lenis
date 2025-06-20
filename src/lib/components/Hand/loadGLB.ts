@@ -1,4 +1,4 @@
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 const loader = new GLTFLoader();
@@ -8,18 +8,17 @@ const dracoLoader = new DRACOLoader();
 // dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
 loader.setDRACOLoader(dracoLoader);
 
-export function loadGLB(path: string) {
+export function loadGLB(path: string): Promise<GLTF> {
 	return new Promise((res, rej) => {
 		loader.load(
 			path,
 			function (gltf) {
 				res(gltf);
 			},
-			function (xhr) {
-				// console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
-			},
+			undefined,
 			function (error) {
-				console.log('An error happened');
+				console.log('An error happened', error);
+				rej(error);
 			}
 		);
 	});
