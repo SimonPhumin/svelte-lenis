@@ -53,33 +53,28 @@ export default class Renderer {
 	initialize(canvas: HTMLCanvasElement) {
 		if (!this.canvas) this.canvas = canvas;
 
+		// Check WebGL support first
+		if (!this.isWebGLAvailable()) {
+			throw new Error('WebGL is not supported in this environment');
+		}
+
+		// Ensure canvas has proper dimensions
+		if (canvas.width === 0 || canvas.height === 0) {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		}
+
 		this.scene = new Scene();
-		// this.camera = new PerspectiveCamera(
-		// 	this.fov,
-		// 	this.viewport.width / this.viewport.height,
-		// 	1,
-		// 	1000
-		// );
 
 		const width = window.innerWidth;
 		const height = window.innerHeight;
-		const aspect = width > height ? width / height : height / width; // (window.devicePixelRatio * width) / height;
-		// const pixelRatio = Math.min(window.devicePixelRatio, 2);
-		// const frustrum = 5;
+		const aspect = width > height ? width / height : height / width;
 
 		this.camera = new OrthographicCamera(
 			-window.innerWidth / aspect,
 			window.innerWidth / aspect,
 			window.innerHeight / aspect,
 			-window.innerHeight / aspect,
-			// (-aspect * frustrum) / 2,
-			// (aspect * frustrum) / 2,
-			// frustrum / 2,
-			// -frustrum / 2,
-			// 0,
-			// 0,
-			// 0,
-			// 0,
 			0.01,
 			10000
 		);
@@ -88,21 +83,49 @@ export default class Renderer {
 		this.viewport.width = window.innerWidth / this.camera.zoom;
 		this.viewport.height = window.innerHeight / this.camera.zoom;
 
-		this.renderer = new WebGLRenderer({
-			canvas: this.canvas,
-			antialias: true,
-			alpha: true,
-			powerPreference: 'high-performance'
-		});
-		this.renderer.setSize(this.viewport.width, this.viewport.height);
+		// Try multiple WebGL configurations
+		const webglConfigs = [
+			{ antialias: true, alpha: true, powerPreference: 'high-performance' as const },
+			{ antialias: false, alpha: true, powerPreference: 'high-performance' as const },
+			{ antialias: false, alpha: false, powerPreference: 'high-performance' as const },
+			{ antialias: false, alpha: false, powerPreference: 'default' as const },
+			{ antialias: false, alpha: false, powerPreference: 'low-power' as const }
+		];
 
-		const target = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
-		this.renderer.setPixelRatio(Math.min(Math.max(0, target), 1));
+		for (const config of webglConfigs) {
+			try {
+				this.renderer = new WebGLRenderer({
+					canvas: this.canvas,
+					...config
+				});
+				this.renderer.setSize(this.viewport.width, this.viewport.height);
 
-		this.clock = new Clock();
+				const target = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
+				this.renderer.setPixelRatio(Math.min(Math.max(0, target), 1));
 
-		// If window resizes
-		window.addEventListener('resize', () => this.onWindowResize(), false);
+				this.clock = new Clock();
+				window.addEventListener('resize', () => this.onWindowResize(), false);
+
+				console.log('WebGL initialized successfully with config:', config);
+				return; // Success, exit the function
+			} catch (error) {
+				console.warn('WebGL config failed:', config, error);
+				continue; // Try next config
+			}
+		}
+
+		// If all configs failed
+		throw new Error('WebGL initialization failed with all configurations');
+	}
+
+	private isWebGLAvailable(): boolean {
+		try {
+			const canvas = document.createElement('canvas');
+			const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+			return !!gl;
+		} catch {
+			return false;
+		}
 	}
 
 	animate() {

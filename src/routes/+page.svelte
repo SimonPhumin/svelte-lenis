@@ -44,7 +44,7 @@
 	const [setCardsRectRef, cardsRect] = useRect();
 	const [setWhiteRectRef, whiteRect] = useRect();
 	const [setFeaturesRectRef, featuresRect] = useRect();
-	const [setInuseRectRef, _inuseRect] = useRect();
+	const [setInuseRectRef] = useRect();
 
 	let zoomWrapperRef: HTMLElement;
 	let whyRef: HTMLElement;

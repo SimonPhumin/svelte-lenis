@@ -57,15 +57,15 @@
 	type MaterialProps<T extends keyof typeof material> = [T, (typeof material)[T]];
 	type LightsProps<T extends keyof typeof lights> = [T, (typeof lights)[T]];
 
-	function updateMaterial(props: MaterialProps[]) {
+	function updateMaterial(props: MaterialProps<keyof typeof material>[]) {
 		for (let [key, val] of props) {
-			material[key] = val;
+			(material as Record<string, unknown>)[key] = val;
 		}
 	}
 
-	function updateLights(props: LightsProps[]) {
+	function updateLights(props: LightsProps<keyof typeof lights>[]) {
 		for (let [key, val] of props) {
-			lights[key] = val;
+			(lights as Record<string, unknown>)[key] = val;
 		}
 	}
 </script>
@@ -113,11 +113,61 @@
 
 			arm.traverse((node) => {
 				if ('material' in node) {
-					node.material.color = color;
-					node.material.roughness = material.roughness.value;
-					node.material.metalness = material.metalness.value;
-					node.material.wireframe = material.wireframe;
-					node.material.needsUpdate = true;
+					(
+						node as {
+							material: {
+								color: Color;
+								roughness: { value: number };
+								metalness: { value: number };
+								wireframe: boolean;
+								needsUpdate: boolean;
+							};
+						}
+					).material.color = color;
+					(
+						node as {
+							material: {
+								color: Color;
+								roughness: { value: number };
+								metalness: { value: number };
+								wireframe: boolean;
+								needsUpdate: boolean;
+							};
+						}
+					).material.roughness = material.roughness.value;
+					(
+						node as {
+							material: {
+								color: Color;
+								roughness: { value: number };
+								metalness: { value: number };
+								wireframe: boolean;
+								needsUpdate: boolean;
+							};
+						}
+					).material.metalness = material.metalness.value;
+					(
+						node as {
+							material: {
+								color: Color;
+								roughness: { value: number };
+								metalness: { value: number };
+								wireframe: boolean;
+								needsUpdate: boolean;
+							};
+						}
+					).material.wireframe = material.wireframe;
+					(
+						node as {
+							material: {
+								color: Color;
+								roughness: { value: number };
+								metalness: { value: number };
+								wireframe: boolean;
+								needsUpdate: boolean;
+							};
+						}
+					).material.needsUpdate = true;
 				}
 			});
 		}
@@ -157,72 +207,76 @@
 		onScroll(0);
 	}
 
-	onMount(async () => {
-		const a1 = await loadGLB('/models/arm.glb');
-		const a2 = await loadGLB('/models/arm2.glb');
+	onMount(() => {
+		(async () => {
+			const a1 = (await loadGLB('/models/arm.glb')) as { scene: { children: Scene[] } };
+			const a2 = (await loadGLB('/models/arm2.glb')) as { scene: { children: Scene[] } };
 
-		arm1 = a1.scene.children[0];
-		arm2 = a2.scene.children[0];
+			arm1 = a1.scene.children[0];
+			arm2 = a2.scene.children[0];
 
-		arm1.scale.set(0, 0, 0);
-		arm2.scale.set(1, 1, 1);
+			arm1.scale.set(0, 0, 0);
+			arm2.scale.set(1, 1, 1);
 
-		currentArm = arm1;
-		updateArmMaterial(arm1, currentArm);
+			currentArm = arm1;
+			updateArmMaterial(arm1, currentArm);
 
-		const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
+			const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
 
-		const groupLight1 = new Group();
-		groupLight1.position.set(...lights.light1.value);
-		const directionalLight1 = new DirectionalLight(
-			new Color(lights.lightsColor),
-			lights.light1Intensity.value
-		);
-
-		const groupLight2 = new Group();
-		groupLight2.position.set(...lights.light2.value);
-		const directionalLight2 = new DirectionalLight(
-			new Color(lights.lightsColor),
-			lights.light2Intensity.value
-		);
-
-		groupLight1.add(directionalLight1);
-		groupLight2.add(directionalLight2);
-
-		parentRef = new Group();
-		groupRef = new Group();
-
-		groupRef.add(arm1);
-		parentRef.add(groupRef);
-
-		renderer?.scene?.add(ambientLight1);
-		renderer?.scene?.add(groupLight1);
-		renderer?.scene?.add(groupLight2);
-		renderer?.scene?.add(parentRef);
-
-		const unsubscribe = renderer.onFrame((state) => {
-			if (!parentRef) return;
-
-			const t = offset + state.clock.getElapsedTime();
-			parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
-			parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
-			parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
-
-			let yPosition = Math.sin((t / 4) * speed) / 10;
-			yPosition = MathUtils.mapLinear(
-				yPosition,
-				-0.1,
-				0.1,
-				floatingRange?.[0] ?? -0.1,
-				floatingRange?.[1] ?? 0.1
+			const groupLight1 = new Group();
+			groupLight1.position.set(...lights.light1.value);
+			const directionalLight1 = new DirectionalLight(
+				new Color(lights.lightsColor),
+				lights.light1Intensity.value
 			);
 
-			parentRef.position.y = yPosition * floatIntensity;
-		});
+			const groupLight2 = new Group();
+			groupLight2.position.set(...lights.light2.value);
+			const directionalLight2 = new DirectionalLight(
+				new Color(lights.lightsColor),
+				lights.light2Intensity.value
+			);
 
-		return () => {
-			unsubscribe && unsubscribe();
-		};
+			groupLight1.add(directionalLight1);
+			groupLight2.add(directionalLight2);
+
+			parentRef = new Group();
+			groupRef = new Group();
+
+			groupRef.add(arm1);
+			parentRef.add(groupRef);
+
+			renderer?.scene?.add(ambientLight1);
+			renderer?.scene?.add(groupLight1);
+			renderer?.scene?.add(groupLight2);
+			renderer?.scene?.add(parentRef);
+
+			const unsubscribe = renderer.onFrame((state) => {
+				if (!parentRef) return;
+
+				const t = offset + state.clock.getElapsedTime();
+				parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
+				parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
+				parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
+
+				let yPosition = Math.sin((t / 4) * speed) / 10;
+				yPosition = MathUtils.mapLinear(
+					yPosition,
+					-0.1,
+					0.1,
+					floatingRange?.[0] ?? -0.1,
+					floatingRange?.[1] ?? 0.1
+				);
+
+				parentRef.position.y = yPosition * floatIntensity;
+			});
+
+			return () => {
+				if (unsubscribe) {
+					unsubscribe();
+				}
+			};
+		})();
 	});
 
 	function onScroll(scroll: number) {

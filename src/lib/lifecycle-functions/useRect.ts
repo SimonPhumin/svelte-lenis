@@ -13,14 +13,12 @@ export interface Rect {
 
 const DEFAULT_RECT = { height: 0, width: 0, top: 0, left: 0 };
 
-export function useRect(lazy: boolean = false, debounce = 1000) {
+export function useRect(lazy: boolean = false) {
 	let node: HTMLElement | null;
 	let resizeObserver: ResizeObserver;
 
 	const rectStore = writable<Rect>(DEFAULT_RECT);
 	const lazyRectStore = writable<Rect>(DEFAULT_RECT);
-
-	const getRect = () => lazyRectStore;
 
 	const resize = () => {
 		const top = offsetTop(node);
@@ -38,7 +36,7 @@ export function useRect(lazy: boolean = false, debounce = 1000) {
 		});
 	};
 
-	let onResizeObserver = (entries: ResizeObserverEntry[]) => {
+	const onResizeObserver = (entries: ResizeObserverEntry[]) => {
 		const [entry] = entries;
 		const { width, height } = entry.contentRect;
 

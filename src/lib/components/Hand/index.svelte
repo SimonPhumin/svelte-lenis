@@ -9,25 +9,33 @@
 	let renderer: Renderer;
 	let canvasRef: HTMLCanvasElement;
 	let height: number, width: number;
+	let webglSupported = true;
 
 	onMount(() => {
 		height = window.innerHeight;
 		width = window.innerWidth;
 
-		renderer = new Renderer();
-		renderer.initialize(canvasRef);
-		renderer.animate();
+		try {
+			renderer = new Renderer();
+			renderer.initialize(canvasRef);
+			renderer.animate();
+		} catch (error) {
+			console.warn('WebGL not supported, disabling 3D components:', error);
+			webglSupported = false;
+		}
 	});
 </script>
 
 <div class="canvas-container">
 	<div class="container">
-		<canvas bind:this={canvasRef}>
-			{#if renderer != undefined}
-				<Particles {renderer} {width} {height} depth={500} count={100} size={150} />
-				<Arm {renderer} />
-			{/if}
-		</canvas>
+		{#if webglSupported}
+			<canvas bind:this={canvasRef}>
+				{#if renderer != undefined}
+					<Particles {renderer} {width} {height} depth={500} count={100} size={150} />
+					<Arm {renderer} />
+				{/if}
+			</canvas>
+		{/if}
 	</div>
 </div>
 

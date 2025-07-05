@@ -9,16 +9,16 @@ const dracoLoader = new DRACOLoader();
 loader.setDRACOLoader(dracoLoader);
 
 export function loadGLB(path: string) {
-	return new Promise((res, rej) => {
+	return new Promise((res) => {
 		loader.load(
 			path,
 			function (gltf) {
 				res(gltf);
 			},
-			function (xhr) {
+			function () {
 				// console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
 			},
-			function (error) {
+			function () {
 				console.log('An error happened');
 			}
 		);

@@ -14,7 +14,7 @@
 			</p>
 		</div>
 		<p class="last-line h1">
-			& open to <span class="hide-on-desktop">&nbsp;</span> features,{' '}
+			& open to <span class="hide-on-desktop">&nbsp;</span> features,
 			<br /> forks or prs &nbsp;
 		</p>
 		<!-- <Button

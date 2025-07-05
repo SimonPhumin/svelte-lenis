@@ -1,6 +1,6 @@
-const imports: Record<string, Promise<any>> = {};
+const imports: Record<string, Promise<{ default: unknown }>> = {};
 
-export async function dynamicImport(module: string, promise: Promise<any>) {
+export async function dynamicImport(module: string, promise: Promise<{ default: unknown }>) {
 	imports[module] = promise;
 	return (await promise).default;
 }

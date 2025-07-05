@@ -36,7 +36,13 @@
 		document.documentElement.classList.toggle('intro', true);
 	}
 
-	$: EIClassName = cn($introOutStore && 'translate');
+	let EIClassName = '';
+
+	$: if ($introOutStore) {
+		EIClassName = 'translate';
+	} else {
+		EIClassName = '';
+	}
 
 	onMount(() => {
 		setTimeout(() => (isLoaded = true), 1000);
@@ -62,8 +68,8 @@
 
 <div class={cn('wrapper', isLoaded && 'out')} on:transitionend={onTransitionEnd}>
 	<div class={cn(isLoaded && 'relative')}>
-		<LNS {isLoaded} isIntro={true} fill={'var(--black)'} />
-		<EI {isLoaded} isIntro={true} fill={'var(--black)'} bind:class={EIClassName} />
+		<LNS {isLoaded} isIntro={true} fill="var(--black)" />
+		<EI {isLoaded} isIntro={true} fill="var(--black)" bind:class={EIClassName} />
 	</div>
 </div>
 

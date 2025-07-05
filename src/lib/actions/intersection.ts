@@ -31,5 +31,7 @@ function observe(node: HTMLElement, options?: IntersectionObserverInit) {
 }
 
 function unobserve(observer: IntersectionObserver | null) {
-	observer && observer.disconnect();
+	if (observer) {
+		observer.disconnect();
+	}
 }

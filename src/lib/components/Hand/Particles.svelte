@@ -81,7 +81,9 @@
 		});
 
 		return () => {
-			unsubscribe && unsubscribe();
+			if (unsubscribe) {
+				unsubscribe();
+			}
 		};
 	});
 
