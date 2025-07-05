@@ -1,7 +1,5 @@
-import { onMount } from 'svelte';
-
 import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
 export function useMediaQuery(queryString: string) {
 	const mediaQuery = (() => {
@@ -14,11 +12,10 @@ export function useMediaQuery(queryString: string) {
 				}
 			}
 		}
-
 		return null;
 	})();
 
-	const isMatch = writable<boolean>(false);
+	const isMatch = writable(false);
 
 	const onChange = ({ matches }: { matches: boolean }) => {
 		isMatch.set(!!matches);
@@ -30,16 +27,24 @@ export function useMediaQuery(queryString: string) {
 		}
 	});
 
+	// Set up the media query listener
 	if (mediaQuery) {
 		onChange(mediaQuery);
 		mediaQuery.addEventListener('change', onChange, opts);
 	}
 
-	onMount(() => {
-		return () => {
-			mediaQuery?.removeEventListener('change', onChange, opts);
-		};
-	});
+	// Create a derived value that provides additional context
+	const mediaQueryInfo = derived(isMatch, ($isMatch) => ({
+		matches: $isMatch,
+		query: queryString,
+		mediaQuery: mediaQuery
+	}));
 
-	return isMatch;
+	return {
+		isMatch,
+		mediaQueryInfo,
+		cleanup: () => {
+			mediaQuery?.removeEventListener('change', onChange, opts);
+		}
+	};
 }

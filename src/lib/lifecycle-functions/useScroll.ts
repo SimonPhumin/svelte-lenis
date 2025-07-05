@@ -1,20 +1,25 @@
-import { onMount } from 'svelte';
 import { get } from 'svelte/store';
 
 import { lenisStore } from '$lib/stores/lenis';
 
-export function useScroll(callback: (...args: unknown[]) => void) {
+export function useScroll(callback: (data: { scroll: number; limit: number }) => void) {
 	const lenisVal = get(lenisStore);
+	let unsubscribe: (() => void) | undefined;
 
-	const unsubscribe = lenisStore.subscribe((lenis) => {
-		lenis?.on('scroll', callback);
-		// lenis?.emit();
-	});
+	const setupScrollListener = () => {
+		unsubscribe = lenisStore.subscribe((lenis) => {
+			lenis?.on('scroll', callback);
+		});
+	};
 
-	onMount(() => {
-		return () => {
+	// Setup scroll listener
+	setupScrollListener();
+
+	return {
+		setupScrollListener,
+		cleanup: () => {
 			lenisVal?.off('scroll', callback);
-			unsubscribe();
-		};
-	});
+			unsubscribe?.();
+		}
+	};
 }

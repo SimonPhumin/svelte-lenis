@@ -2,10 +2,14 @@
 	import cn from 'clsx';
 
 	import { introOutStore } from '$lib/stores/introOut';
+
+	const { children } = $props<{
+		children?: () => unknown;
+	}>();
 </script>
 
 <div class={cn('hide-text', $introOutStore && 'show-text')}>
-	<slot />
+	{@render children?.()}
 </div>
 
 <style lang="scss">

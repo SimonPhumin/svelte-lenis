@@ -1,26 +1,35 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import cn from 'clsx';
 
 	import { intersection } from '$lib/actions/intersection';
 	import { useMediaQuery } from '$lib/lifecycle-functions/useMediaQuery';
 	import { useRect } from '$lib/lifecycle-functions/useRect';
 
-	export let visible = true;
+	const { visible = true, children } = $props<{
+		visible?: boolean;
+		children?: () => unknown;
+	}>();
 
 	let titleRef: HTMLSpanElement | null = null;
-	let intersected = false;
+	let intersected = $state(false);
 
 	const emit = createEventDispatcher();
 
-	const [rectRef] = useRect();
-	const isMobile = useMediaQuery('(max-width: 800px)');
+	const { setRef: rectRef } = useRect();
+	const { isMatch: isMobile } = useMediaQuery('(max-width: 800px)');
 
-	$: if (!$isMobile) {
-		// Desktop-specific logic can be added here if needed
-	}
+	$effect(() => {
+		if (!$isMobile) {
+			// Desktop-specific logic can be added here if needed
+		}
+	});
 
-	onMount(() => emit('mounted'));
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			emit('mounted');
+		}
+	});
 
 	function rectAction(node: HTMLSpanElement) {
 		rectRef(node);
@@ -32,16 +41,17 @@
 	use:intersection={{
 		threshold: 1
 	}}
-	on:intersecting={() => {
-		intersected = true;
-	}}
 	use:rectAction
 	class={cn('title', intersected && visible && 'visible')}
 >
-	<slot />
+	<span class="line">
+		{@render children?.()}
+	</span>
 </span>
 
 <style lang="scss">
+	@use '$lib/styles/_functions' as *;
+
 	.title {
 		.line {
 			display: inline-block;

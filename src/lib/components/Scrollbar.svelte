@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
 	import { lenisStore as lenis } from '$lib/stores/lenis';
 
 	import { clamp, mapRange } from '$lib/utils/maths';
@@ -8,11 +6,11 @@
 	import { useScroll } from '$lib/lifecycle-functions/useScroll';
 
 	let progressBar: HTMLDivElement;
-	let clicked = false;
+	let clicked = $state(false);
 
-	const [size] = useWindowSize();
+	const { size } = useWindowSize();
 
-	$: windowHeight = $size.height;
+	const windowHeight = $derived($size.height);
 
 	function onPointerUp() {
 		clicked = false;
@@ -41,7 +39,7 @@
 		progressBar.style.transform = `scaleX(${progress})`;
 	});
 
-	onMount(() => {
+	$effect(() => {
 		if (!clicked) return;
 
 		window.addEventListener('pointermove', onPointerMove, false);
@@ -55,7 +53,7 @@
 </script>
 
 <div class="scrollbar">
-	<div bind:this={progressBar} class="inner" />
+	<div bind:this={progressBar} class="inner"></div>
 </div>
 
 <style lang="scss">

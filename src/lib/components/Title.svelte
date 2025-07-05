@@ -1,19 +1,13 @@
 <script lang="ts">
-	import cn from 'clsx';
-
-	import { introOutStore } from '$lib/stores/introOut';
-
 	import Lns from './LNS.svelte';
 	import Ei from './EI.svelte';
 
-	let className = '';
-
-	export { className as class };
+	const { class: className = '' } = $props<{ class?: string }>();
 </script>
 
 <div class={className}>
 	<Lns fill="var(--pink)" />
-	<Ei fill="var(--pink)" class={cn($introOutStore && 'translate', 'mobile')} />
+	<Ei fill="var(--pink)" />
 </div>
 
 <style lang="scss">

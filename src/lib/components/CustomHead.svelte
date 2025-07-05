@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let title = '';
-	export let description = '';
-	export let image = '';
-	export let keywords: string[] = [];
+	const { title = '', keywords = [] } = $props<{
+		title?: string;
+		keywords?: string[];
+	}>();
 </script>
 
 <svelte:head>

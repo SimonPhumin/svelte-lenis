@@ -1,31 +1,41 @@
 <script lang="ts">
-	import { onMount, type Component } from 'svelte';
+	import { type Component } from 'svelte';
 	import cn from 'clsx';
 
-	let className = '';
+	const { class: className = '', ...rest } = $props<{
+		href?: string;
+		title?: string;
+		source?: string;
+		visible?: boolean;
+		index?: number;
+		class?: string;
+	}>();
 
-	export { className as class };
-	export let href = '';
-	export let title = '';
-	export let source = '';
-	export let visible = false;
-	export let index = 0;
+	let Arrow = $state<Component>();
 
-	let Arrow: Component;
-
-	onMount(async () => {
-		Arrow = (await import('./Icons/ArrowDiagonal.svelte')).default;
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			(async () => {
+				Arrow = (await import('./Icons/ArrowDiagonal.svelte')).default;
+			})();
+		}
 	});
 </script>
 
-<a {href} class={cn(className, 'item', visible && 'visible')} style={`--i: ${index};`}>
+<a
+	href={rest.href}
+	class={cn(className, 'item', rest.visible && 'visible')}
+	style={`--i: ${rest.index}`}
+>
 	<div class="inner">
 		<div class="title">
-			<span class="text">{title}</span>
-			<svelte:component this={Arrow} class="arrow" />
+			<span class="text">{rest.title}</span>
+			{#if Arrow}
+				<Arrow class="arrow" />
+			{/if}
 		</div>
 		<div class="source">
-			<span>{source}</span>
+			<span>{rest.source}</span>
 		</div>
 	</div>
 </a>

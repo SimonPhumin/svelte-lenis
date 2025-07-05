@@ -1,27 +1,30 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
 	import Renderer from './renderer';
 
 	import Particles from './Particles.svelte';
 	import Arm from './Arm.svelte';
 
-	let renderer: Renderer;
-	let canvasRef: HTMLCanvasElement;
-	let height: number, width: number;
-	let webglSupported = true;
+	let renderer = $state<Renderer>();
+	let canvasRef = $state<HTMLCanvasElement>();
+	let height = $state<number>(),
+		width = $state<number>();
+	let webglSupported = $state(true);
 
-	onMount(() => {
-		height = window.innerHeight;
-		width = window.innerWidth;
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			height = window.innerHeight;
+			width = window.innerWidth;
 
-		try {
-			renderer = new Renderer();
-			renderer.initialize(canvasRef);
-			renderer.animate();
-		} catch (error) {
-			console.warn('WebGL not supported, disabling 3D components:', error);
-			webglSupported = false;
+			try {
+				renderer = new Renderer();
+				if (canvasRef) {
+					renderer.initialize(canvasRef);
+					renderer.animate();
+				}
+			} catch (error) {
+				console.warn('WebGL not supported, disabling 3D components:', error);
+				webglSupported = false;
+			}
 		}
 	});
 </script>

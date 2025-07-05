@@ -1,12 +1,19 @@
 <script lang="ts">
 	import cn from 'clsx';
 
-	let className = '';
+	const {
+		isLoaded = false,
+		isIntro = false,
+		fill = '',
+		className = ''
+	} = $props<{
+		isLoaded?: boolean;
+		isIntro?: boolean;
+		fill?: string;
+		className?: string;
+	}>();
 
 	export { className as class };
-	export let isLoaded = false;
-	export let isIntro = false;
-	export let fill = '';
 </script>
 
 <svg

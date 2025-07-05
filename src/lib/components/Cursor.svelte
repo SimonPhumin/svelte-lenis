@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import gsap from 'gsap';
 	import cn from 'clsx';
 
 	let cursor: HTMLDivElement;
-	let isGrab = false;
-	let isPointer = false;
-	let hasMoved = false;
+	let isGrab = $state(false);
+	let isPointer = $state(false);
+	let hasMoved = $state(false);
 
 	const onMouseMove = ({ clientX, clientY }: { clientX: number; clientY: number }) => {
 		gsap.to(cursor, {
@@ -33,40 +32,42 @@
 		isGrab = false;
 	};
 
-	onMount(() => {
-		document.documentElement.classList.add('has-custom-cursor');
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			document.documentElement.classList.add('has-custom-cursor');
 
-		let pointerElements: Element[] = [
-			...document.querySelectorAll("button,a,input,label,[data-cursor='pointer']")
-		];
-
-		pointerElements.forEach((element) => {
-			element.addEventListener('mouseenter', onMouseEnterPointer, false);
-			element.addEventListener('mouseleave', onMouseLeavePointer, false);
-		});
-
-		let grabElements: Element[] = [
-			...document.querySelectorAll("button,a,input,label,[data-cursor='pointer']")
-		];
-
-		grabElements.forEach((element) => {
-			element.addEventListener('mouseenter', onMouseEnterGrab, false);
-			element.addEventListener('mouseleave', onMouseLeaveGrab, false);
-		});
-
-		return () => {
-			document.documentElement.classList.remove('has-custom-cursor');
+			let pointerElements: Element[] = [
+				...document.querySelectorAll("button,a,input,label,[data-cursor='pointer']")
+			];
 
 			pointerElements.forEach((element) => {
-				element.removeEventListener('mouseenter', onMouseEnterPointer, false);
-				element.removeEventListener('mouseleave', onMouseLeavePointer, false);
+				element.addEventListener('mouseenter', onMouseEnterPointer, false);
+				element.addEventListener('mouseleave', onMouseLeavePointer, false);
 			});
 
+			let grabElements: Element[] = [
+				...document.querySelectorAll("button,a,input,label,[data-cursor='pointer']")
+			];
+
 			grabElements.forEach((element) => {
-				element.removeEventListener('mouseenter', onMouseEnterGrab, false);
-				element.removeEventListener('mouseleave', onMouseLeaveGrab, false);
+				element.addEventListener('mouseenter', onMouseEnterGrab, false);
+				element.addEventListener('mouseleave', onMouseLeaveGrab, false);
 			});
-		};
+
+			return () => {
+				document.documentElement.classList.remove('has-custom-cursor');
+
+				pointerElements.forEach((element) => {
+					element.removeEventListener('mouseenter', onMouseEnterPointer, false);
+					element.removeEventListener('mouseleave', onMouseLeavePointer, false);
+				});
+
+				grabElements.forEach((element) => {
+					element.removeEventListener('mouseenter', onMouseEnterGrab, false);
+					element.removeEventListener('mouseleave', onMouseLeaveGrab, false);
+				});
+			};
+		}
 	});
 </script>
 
@@ -74,7 +75,7 @@
 
 <div style:opacity={hasMoved ? 1 : 0} class="container">
 	<div bind:this={cursor}>
-		<div class={cn('cursor', isGrab && 'grab', isPointer && 'pointer')} />
+		<div class={cn('cursor', isGrab && 'grab', isPointer && 'pointer')}></div>
 	</div>
 </div>
 

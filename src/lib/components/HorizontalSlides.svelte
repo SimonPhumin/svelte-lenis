@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { gsap } from 'gsap';
 
 	import { useWindowSize } from '$lib/lifecycle-functions/useWindowSize';
@@ -8,16 +8,16 @@
 	import { useScroll } from '$lib/lifecycle-functions/useScroll';
 	import { clamp, mapRange } from '$lib/utils/maths';
 
-	let wrapperRectRef: HTMLDivElement;
-	let elementRectRef: HTMLDivElement;
+	let wrapperRectRef = $state<HTMLDivElement>();
+	let elementRectRef = $state<HTMLDivElement>();
 
 	const emit = createEventDispatcher();
 
-	const isMobile = useMediaQuery('(max-width: 800px)');
-	const [setWrapperRectRef, wrapperRect] = useRect();
-	const [setElementRectRef, elementRect] = useRect();
+	const { isMatch: isMobile } = useMediaQuery('(max-width: 800px)');
+	const { setRef: setWrapperRectRef, rect: wrapperRect } = useRect();
+	const { setRef: setElementRectRef, rect: elementRect } = useRect();
 
-	const [windowSize] = useWindowSize();
+	const { size: windowSize } = useWindowSize();
 
 	let windowWidth: number = 0;
 	const onResize = () => {
@@ -45,14 +45,18 @@
 		});
 	});
 
-	onMount(() => {
-		onResize();
+	$effect(() => {
+		if (typeof window !== 'undefined' && wrapperRectRef && elementRectRef) {
+			onResize();
 
-		setWrapperRectRef(wrapperRectRef);
-		setElementRectRef(elementRectRef);
+			setWrapperRectRef(wrapperRectRef);
+			setElementRectRef(elementRectRef);
 
-		emit('mounted');
+			emit('mounted');
+		}
 	});
+
+	const { children } = $props<{ children?: () => unknown }>();
 </script>
 
 <svelte:window on:resize={onResize} />
@@ -64,9 +68,10 @@
 >
 	<div class="inner">
 		<div bind:this={elementRectRef} class="overflow hide-on-mobile">
-			<slot />
+			{@render children?.()}
 		</div>
-		<div class="cards hide-on-desktop"><slot /></div>
+		<div class="cards hide-on-mobile">{@render children?.()}</div>
+		<div class="cards hide-on-desktop">{@render children?.()}</div>
 	</div>
 </div>
 

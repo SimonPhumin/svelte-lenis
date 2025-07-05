@@ -1,15 +1,11 @@
 <script lang="ts">
-	import { onMount, type Component } from 'svelte';
+	import { type Component } from 'svelte';
 	import cn from 'clsx';
 
 	import { lenisStore as lenis } from '$lib/stores/lenis';
 	import { introOutStore } from '$lib/stores/introOut';
 	import { addThreshold } from '$lib/stores/thresholds';
 	import { setThemeStore, themeStore } from '$lib/stores/theme';
-	import {
-		homePageLoadedComponentsStore,
-		setHomePageLoadedComponentsStore
-	} from '$lib/stores/homePageLoadedComponents';
 
 	import { intersection } from '$lib/actions/intersection';
 	import { useRect } from '$lib/lifecycle-functions/useRect';
@@ -28,23 +24,27 @@
 	import ListItem from '$lib/components/ListItem.svelte';
 	import Card from '$lib/components/Card.svelte';
 
-	let AppearTitle: Component;
-	let SFDR: Component;
-	let GitHub: Component;
-	let Parallax: Component;
-	let HorizontalSlides: Component;
-	let FeatureCards: Component;
+	import { homePageLoadedComponentsStore } from '$lib/stores/homePageLoadedComponents';
 
-	let hasScrolled = false;
-	let visible = false;
+	let AppearTitle = $state<typeof import('../lib/components/AppearTitle.svelte').default>();
+	let SFDR = $state<Component>();
+	let GitHub = $state<Component>();
+	let Parallax = $state<typeof import('../lib/components/Parallax.svelte').default>();
+	let HorizontalSlides =
+		$state<typeof import('../lib/components/HorizontalSlides.svelte').default>();
+	let FeatureCards =
+		$state<typeof import('../lib/components/FeatureCards/FeatureCards.svelte').default>();
 
-	const [size] = useWindowSize();
-	const [setZoomWrapperRectRef, zoomWrapperRect] = useRect();
-	const [setWhyRectRef, whyRect] = useRect();
-	const [setCardsRectRef, cardsRect] = useRect();
-	const [setWhiteRectRef, whiteRect] = useRect();
-	const [setFeaturesRectRef, featuresRect] = useRect();
-	const [setInuseRectRef] = useRect();
+	let hasScrolled = $state(false);
+	let visible = $state(false);
+
+	const { size } = useWindowSize();
+	const { setRef: setZoomWrapperRectRef, rect: zoomWrapperRect } = useRect();
+	const { setRef: setWhyRectRef, rect: whyRect } = useRect();
+	const { setRef: setCardsRectRef, rect: cardsRect } = useRect();
+	const { setRef: setWhiteRectRef, rect: whiteRect } = useRect();
+	const { setRef: setFeaturesRectRef, rect: featuresRect } = useRect();
+	const { setRef: setInuseRectRef } = useRect();
 
 	let zoomWrapperRef: HTMLElement;
 	let whyRef: HTMLElement;
@@ -53,31 +53,47 @@
 	let featuresRectRef: HTMLElement;
 	let inuseRectRef: HTMLElement;
 
-	$: if (Object.keys($homePageLoadedComponentsStore).length === 4) {
-		setRectRefs();
+	$effect(() => {
+		if (Object.keys($homePageLoadedComponentsStore).length === 4) {
+			setRectRefs();
 
-		setTimeout(() => {
-			updateThresholds();
-		}, 800);
-	}
+			setTimeout(() => {
+				updateThresholds();
+			}, 800);
+		}
+	});
 
-	onMount(async () => {
-		SFDR = (await import('../lib/components/Icons/Sfdr.svelte')).default;
-		GitHub = (await import('../lib/components/Icons/Github.svelte')).default;
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			(async () => {
+				SFDR = (await import('../lib/components/Icons/Sfdr.svelte')).default;
+				GitHub = (await import('../lib/components/Icons/Github.svelte')).default;
 
-		AppearTitle = await dynamicImport(
-			'AppearTitle',
-			import('../lib/components/AppearTitle.svelte')
-		);
-		HorizontalSlides = await dynamicImport(
-			'HorizontalSlides',
-			import('../lib/components/HorizontalSlides.svelte')
-		);
-		Parallax = await dynamicImport('Parallax', import('../lib/components/Parallax.svelte'));
-		FeatureCards = await dynamicImport(
-			'Parallax',
-			import('../lib/components/FeatureCards/FeatureCards.svelte')
-		);
+				AppearTitle = (await dynamicImport(
+					'AppearTitle',
+					import('../lib/components/AppearTitle.svelte')
+				)) as typeof import('../lib/components/AppearTitle.svelte').default;
+				HorizontalSlides = (await dynamicImport(
+					'HorizontalSlides',
+					import('../lib/components/HorizontalSlides.svelte')
+				)) as typeof import('../lib/components/HorizontalSlides.svelte').default;
+				Parallax = (await dynamicImport(
+					'Parallax',
+					import('../lib/components/Parallax.svelte')
+				)) as typeof import('../lib/components/Parallax.svelte').default;
+				FeatureCards = (await dynamicImport(
+					'FeatureCards',
+					import('../lib/components/FeatureCards/FeatureCards.svelte')
+				)) as typeof import('../lib/components/FeatureCards/FeatureCards.svelte').default;
+
+				// Refresh GSAP after components are loaded
+				if (typeof window !== 'undefined') {
+					import('gsap/dist/ScrollTrigger').then(({ ScrollTrigger }) => {
+						ScrollTrigger.refresh();
+					});
+				}
+			})();
+		}
 	});
 
 	useScroll(({ scroll }) => {
@@ -157,7 +173,9 @@
 <section class="hero">
 	<div class="layout-grid-inner">
 		<Title class="title" />
-		<svelte:component this={SFDR} class={cn('icon-hero', $introOutStore && 'show')} />
+		{#if SFDR}
+			<SFDR class={cn('icon-hero', $introOutStore && 'show')} />
+		{/if}
 		<span class="sub">
 			<HeroTextIn>
 				<h2 class="h3 subtitle">Smooth Scroll</h2>
@@ -194,20 +212,22 @@
 				<p class="p-s">Studio Freight Darkroom</p>
 			</HeroTextIn>
 		</h1>
-		<Button
-			class={cn('cta', $introOutStore && 'in')}
-			arrow={true}
-			icon={GitHub}
-			href="https://github.com/studio-freight/lenis"
-		>
-			Check it out on github
-		</Button>
+		{#if GitHub}
+			<Button
+				class={cn('cta', $introOutStore && 'in')}
+				href="https://github.com/studio-freight/lenis"
+			>
+				Check it out on github
+			</Button>
+		{/if}
 	</div>
 </section>
 <section class="why" data-lenis-scroll-snap-align="start">
 	<div class="layout-grid">
 		<h2 class="sticky h2">
-			<svelte:component this={AppearTitle}>Why smooth scroll?</svelte:component>
+			{#if AppearTitle}
+				<AppearTitle>Why smooth scroll?</AppearTitle>
+			{/if}
 		</h2>
 		<aside class="features" bind:this={whyRef}>
 			<div class="feature">
@@ -248,61 +268,70 @@
 <section class="rethink">
 	<div class="layout-grid pre">
 		<div class="highlight" data-lenis-scroll-snap-align="start">
-			<svelte:component
-				this={Parallax}
-				speed={-0.5}
-				on:mounted={() => setHomePageLoadedComponentsStore('Parallax')}
-			>
-				<p class="h2">
-					<AppearTitle>Rethinking smooth scroll</AppearTitle>
-				</p>
-			</svelte:component>
+			{#if Parallax}
+				<Parallax speed={-0.5}>
+					<p class="h2">
+						{#if AppearTitle}
+							<AppearTitle>Rethinking smooth scroll</AppearTitle>
+						{/if}
+					</p>
+				</Parallax>
+			{/if}
 		</div>
 		<div class="comparison">
-			<svelte:component this={Parallax} speed={0.5}>
-				<p class="p">
-					We have to give props to libraries like -
-					<Link
-						class="contrast semi-bold"
-						href="https://github.com/locomotivemtl/locomotive-scroll"
-					>
-						Locomotive Scroll
-					</Link> - and -
-					<Link
-						class="contrast semi-bold"
-						href="https://greensock.com/docs/v3/Plugins/ScrollSmoother"
-					>
-						GSAP ScrollSmoother
-					</Link>
-					. They're well built and well documented – and we've used them a lot. But they still have issues
-					that keep them from being bulletproof.
-				</p>
-			</svelte:component>
+			{#if Parallax}
+				<Parallax speed={0.5}>
+					<p class="p">
+						We have to give props to libraries like -
+						<Link
+							class="contrast semi-bold"
+							href="https://github.com/locomotivemtl/locomotive-scroll"
+						>
+							Locomotive Scroll
+						</Link> - and -
+						<Link
+							class="contrast semi-bold"
+							href="https://greensock.com/docs/v3/Plugins/ScrollSmoother"
+						>
+							GSAP ScrollSmoother
+						</Link>
+						. They're well built and well documented – and we've used them a lot. But they still have
+						issues that keep them from being bulletproof.
+					</p>
+				</Parallax>
+			{/if}
 		</div>
 	</div>
 	<div class="cards" bind:this={cardsRectRef}>
-		<svelte:component
-			this={HorizontalSlides}
-			on:mounted={() => setHomePageLoadedComponentsStore('HorizontalSlides')}
-		>
-			<Card class="card" number={1} text="Loss of performance budget due to using CSS transforms" />
-			<Card
-				class="card"
-				number={2}
-				text="Inaccessibility from no page search support and native scrollbar"
-			/>
-			<Card class="card" number={3} text="Non-negligible import costs (12.1kb - 24.34kb gzipped)" />
-			<Card
-				class="card"
-				number={4}
-				text="Limited animation systems for complex, scroll-based animations"
-			/>
-			<Card
-				class="card"
-				number={5}
-				text="Erasing native APIs like Intersection-Observer, CSS Sticky, etc."
-			/>
-		</svelte:component>
+		{#if HorizontalSlides}
+			<HorizontalSlides>
+				<Card
+					class="card"
+					number={1}
+					text="Loss of performance budget due to using CSS transforms"
+				/>
+				<Card
+					class="card"
+					number={2}
+					text="Inaccessibility from no page search support and native scrollbar"
+				/>
+				<Card
+					class="card"
+					number={3}
+					text="Non-negligible import costs (12.1kb - 24.34kb gzipped)"
+				/>
+				<Card
+					class="card"
+					number={4}
+					text="Limited animation systems for complex, scroll-based animations"
+				/>
+				<Card
+					class="card"
+					number={5}
+					text="Erasing native APIs like Intersection-Observer, CSS Sticky, etc."
+				/>
+			</HorizontalSlides>
+		{/if}
 	</div>
 </section>
 <section bind:this={zoomWrapperRef} class="solution">
@@ -333,32 +362,28 @@
 		</div>
 	</div>
 	<section bind:this={featuresRectRef}>
-		<svelte:component
-			this={FeatureCards}
-			on:mounted={() => setHomePageLoadedComponentsStore('FeatureCards')}
-		/>
+		{#if FeatureCards}
+			<FeatureCards />
+		{/if}
 	</section>
 </section>
 <section
 	bind:this={inuseRectRef}
 	class={cn('theme-light', 'in-use', visible && 'visible')}
 	use:intersection={{
-		threshold: 0.2
-	}}
-	on:intersecting={() => {
-		visible = true;
+		threshold: 0.5
 	}}
 >
 	<div class="layout-grid">
 		<aside class="title">
 			<p class="h3">
-				<svelte:component
-					this={AppearTitle}
-					on:mounted={() => setHomePageLoadedComponentsStore('AppearTitle')}
-					>Lenis
-					<br />
-					<span class="grey">in use</span></svelte:component
-				>
+				{#if AppearTitle}
+					<AppearTitle>
+						Lenis
+						<br />
+						<span class="grey">in use</span>
+					</AppearTitle>
+				{/if}
 			</p>
 		</aside>
 		<ul class="list">

@@ -1,49 +1,41 @@
 <script lang="ts">
-	import { onMount, type Component } from 'svelte';
-
 	import cn from 'clsx';
 
-	let className = '';
+	const {
+		href = '',
+		class: className = '',
+		children
+	} = $props<{
+		href?: string;
+		class?: string;
+		children?: () => unknown;
+	}>();
 
-	export { className as class };
-	export let icon: Component;
-	export let arrow = false;
-	export let href = '';
-
-	let Arrow: Component;
-
-	onMount(async () => {
-		Arrow = (await import('./Icons/ArrowButtons.svelte')).default;
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			(async () => {
+				// Arrow component is imported but not used in this version
+				// const Arrow = (await import('./Icons/ArrowButtons.svelte')).default;
+			})();
+		}
 	});
 </script>
 
 {#if href}
 	<a {href} class={cn('button', className, 'has-icon')}>
-		{#if icon}<span class="icon"><svelte:component this={icon} class="arrow" /></span>{/if}
 		<span class="text">
-			<span class="visible">
-				<slot />
-				{#if arrow}<svelte:component this={Arrow} class="arrow" />{/if}
-			</span>
-			<span aria-hidden="true" class="hidden">
-				<slot />
-				{#if arrow}<svelte:component this={Arrow} class="arrow" />{/if}
-			</span>
+			<span class="visible">{@render children?.()}</span>
+			<span aria-hidden="true" class="hidden">{@render children?.()}</span>
 		</span>
+		<div class="icon"></div>
 	</a>
 {:else}
-	<button class={cn('button', className, 'has-icon')} on:click>
-		{#if icon}<span class="icon"><svelte:component this={icon} class="arrow" /></span>{/if}
+	<button class={cn('button', className, 'has-icon')} onclick={() => {}}>
 		<span class="text">
-			<span class="visible">
-				<slot />
-				{#if arrow}<svelte:component this={Arrow} class="arrow" />{/if}
-			</span>
-			<span aria-hidden="true" class="hidden">
-				<slot />
-				{#if arrow}<svelte:component this={Arrow} class="arrow" />{/if}
-			</span>
+			<span class="visible">{@render children?.()}</span>
+			<span aria-hidden="true" class="hidden">{@render children?.()}</span>
 		</span>
+		<div class="icon"></div>
 	</button>
 {/if}
 

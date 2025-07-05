@@ -2,23 +2,26 @@
 	import type { Component } from 'svelte';
 	import cn from 'clsx';
 
-	let className = '';
-
-	export { className as class };
-	export let number: number | undefined = undefined;
-	export let text: string | Component = '';
-	export let inverted = false;
-	export let background = 'rgba(14, 14, 14, 0.15)';
+	const { class: className = '', ...rest } = $props<{
+		class?: string;
+		number?: number;
+		text?: string | Component;
+		inverted?: boolean;
+		background?: string;
+	}>();
 </script>
 
-<div class={cn(className, 'wrapper', inverted && 'inverted')} style={`--background: ${background}`}>
-	{#if number != undefined}
-		<p class="number">{number.toString().padStart(2, '0')}</p>
+<div
+	class={cn(className, 'wrapper', rest.inverted && 'inverted')}
+	style={`--background: ${rest.background}`}
+>
+	{#if rest.number != undefined}
+		<p class="number">{rest.number.toString().padStart(2, '0')}</p>
 	{/if}
-	{#if text && typeof text === 'string'}
-		<p class="text">{text}</p>
-	{:else if text}
-		<svelte:component this={text} />
+	{#if rest.text && typeof rest.text === 'string'}
+		<p class="text">{rest.text}</p>
+	{:else if rest.text}
+		<text />
 	{/if}
 </div>
 

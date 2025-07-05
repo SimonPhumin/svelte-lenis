@@ -1,5 +1,5 @@
 <script lang="ts">
-	let className = '';
+	let className = $state('');
 
 	export { className as class };
 </script>

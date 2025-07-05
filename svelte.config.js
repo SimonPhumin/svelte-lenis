@@ -9,6 +9,11 @@ const config = {
 
 	kit: {
 		adapter: adapter()
+	},
+
+	// Try to enable runes if available
+	compilerOptions: {
+		runes: true
 	}
 };
 

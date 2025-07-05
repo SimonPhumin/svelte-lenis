@@ -1,8 +1,7 @@
-import { onMount } from 'svelte';
-// import { throttle } from 'throttle-debounce';
+import { browser } from '$app/environment';
+import { writable, derived } from 'svelte/store';
 
-// import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
+// import { throttle } from 'throttle-debounce';
 
 export interface Rect {
 	height: number;
@@ -17,48 +16,42 @@ export function useRect(lazy: boolean = false) {
 	let node: HTMLElement | null;
 	let resizeObserver: ResizeObserver;
 
-	const rectStore = writable<Rect>(DEFAULT_RECT);
-	const lazyRectStore = writable<Rect>(DEFAULT_RECT);
+	const rect = writable<Rect>({ ...DEFAULT_RECT });
+	const lazyRect = writable<Rect>({ ...DEFAULT_RECT });
 
 	const resize = () => {
+		if (!node) return;
+
 		const top = offsetTop(node);
 		const left = offsetLeft(node);
 
-		let newRect: Rect;
-		lazyRectStore.update((pre) => {
-			newRect = Object.assign({}, pre, { top, left });
+		lazyRect.update((current) => ({ ...current, top, left }));
 
-			if (!lazy) {
-				rectStore.set(newRect);
-			}
-
-			return newRect;
-		});
+		if (!lazy) {
+			rect.update((current) => ({ ...current, top, left }));
+		}
 	};
 
 	const onResizeObserver = (entries: ResizeObserverEntry[]) => {
 		const [entry] = entries;
 		const { width, height } = entry.contentRect;
 
-		let newRect: Rect;
-		lazyRectStore.update((pre) => {
-			newRect = Object.assign({}, pre, { width, height });
+		lazyRect.update((current) => ({ ...current, width, height }));
 
-			if (!lazy) {
-				rectStore.set(newRect);
-			}
-
-			return newRect;
-		});
+		if (!lazy) {
+			rect.update((current) => ({ ...current, width, height }));
+		}
 	};
 
 	const unobserve = () => {
+		if (!browser) return;
 		if (node) resizeObserver?.unobserve(node);
 		resizeObserver?.unobserve(document.body);
 		resizeObserver?.disconnect();
 	};
 
 	const setRef = (elm: HTMLElement) => {
+		if (!browser) return;
 		if (!elm || elm === node) return;
 		node = elm;
 
@@ -67,8 +60,6 @@ export function useRect(lazy: boolean = false) {
 
 		resizeObserver = new ResizeObserver(onResizeObserver);
 		resizeObserver.observe(node);
-
-		// node.dispatchEvent(new Event('resize'));
 	};
 
 	// Observer "document.body" by default
@@ -79,14 +70,24 @@ export function useRect(lazy: boolean = false) {
 	// 	resizeObserver.observe(document.body);
 	// }
 
-	onMount(() => {
-		return () => {
-			unobserve();
-			// callback?.cancel({ upcomingOnly: true });
-		};
-	});
+	// Create derived values for individual dimensions
+	const width = derived(rect, ($rect) => $rect.width);
+	const height = derived(rect, ($rect) => $rect.height);
+	const top = derived(rect, ($rect) => $rect.top);
+	const left = derived(rect, ($rect) => $rect.left);
 
-	return [setRef, rectStore] as const;
+	return {
+		setRef,
+		rect,
+		lazyRect,
+		width,
+		height,
+		top,
+		left,
+		cleanup: () => {
+			unobserve();
+		}
+	} as const;
 }
 
 // offsetTop function returns the offsetTop value of a DOM element.

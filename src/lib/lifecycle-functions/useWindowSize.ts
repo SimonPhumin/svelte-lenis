@@ -1,5 +1,5 @@
-import { onMount } from 'svelte';
-import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
+import { writable, derived } from 'svelte/store';
 
 interface Size {
 	width: number;
@@ -7,33 +7,44 @@ interface Size {
 }
 
 export function useWindowSize(initialWidth = Infinity, initialHeight = Infinity) {
-	const state = writable<Size>({ width: initialWidth, height: initialHeight });
+	const size = writable<Size>({ width: initialWidth, height: initialHeight });
 	let frame = 0;
 
 	const setRafState = (value: Size) => {
+		if (!browser) return;
 		cancelAnimationFrame(frame);
-
 		frame = requestAnimationFrame(() => {
-			state.set(value);
+			size.set(value);
 		});
 	};
 
 	const handler = () => {
+		if (!browser) return;
 		setRafState({
 			width: window.innerWidth,
 			height: window.innerHeight
 		});
 	};
 
-	onMount(() => {
+	// Set up the resize listener only in browser
+	if (browser) {
 		handler();
 		window.addEventListener('resize', handler);
+	}
 
-		return () => {
+	// Create derived values for individual dimensions
+	const width = derived(size, ($size) => $size.width);
+	const height = derived(size, ($size) => $size.height);
+
+	return {
+		size,
+		width,
+		height,
+		handler,
+		cleanup: () => {
+			if (!browser) return;
 			cancelAnimationFrame(frame);
 			window.removeEventListener('resize', handler);
-		};
-	});
-
-	return [state, handler] as const;
+		}
+	} as const;
 }

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	const material: {
 		color: string | Color;
 		roughness: { min: number; max: number; value: number };
@@ -71,7 +71,6 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import {
 		AmbientLight,
 		Color,
@@ -80,7 +79,8 @@
 		Group,
 		MathUtils,
 		Scene,
-		Vector3
+		Vector3,
+		Clock
 	} from 'three';
 
 	import type Renderer from './renderer';
@@ -91,21 +91,24 @@
 	import { steps } from './steps';
 	import { loadGLB } from './loadGLB';
 
-	export let renderer: Renderer;
+	const { renderer } = $props<{
+		renderer: Renderer;
+	}>();
 
-	let type = 1;
-	let updateML = false;
+	let arm1 = $state<Scene>();
+	let arm2 = $state<Scene>();
+	let currentArm = $state<Scene>();
+	let parentRef = $state<Group>();
+	let groupRef = $state<Group>();
+	let type = $state<string>('');
+	let updateML = $state(false);
 	const dummyArr = [0, 0, 0];
 	const speed = 1;
 	const rotationIntensity = 1;
 	const floatIntensity = 1;
 	const floatingRange = [-0.1, 0.1];
 
-	let parentRef: Group;
-	let groupRef: Group;
 	let offset = Math.random() * 10000;
-	let arm1: Scene, arm2: Scene;
-	let currentArm: Scene | null = null;
 
 	const updateArmMaterial = (arm: Scene | null, currentArm: Scene | null) => {
 		if (arm && currentArm === arm) {
@@ -134,7 +137,7 @@
 								needsUpdate: boolean;
 							};
 						}
-					).material.roughness = material.roughness.value;
+					).material.roughness = { value: material.roughness.value };
 					(
 						node as {
 							material: {
@@ -145,7 +148,7 @@
 								needsUpdate: boolean;
 							};
 						}
-					).material.metalness = material.metalness.value;
+					).material.metalness = { value: material.metalness.value };
 					(
 						node as {
 							material: {
@@ -173,110 +176,118 @@
 		}
 	};
 
-	$: if (updateML) {
-		// updateMaterial(['color', color]);
-		// material.color = new Color(material.color);
+	$effect(() => {
+		if (updateML) {
+			// updateMaterial(['color', color]);
+			// material.color = new Color(material.color);
 
-		if (arm1 && currentArm === arm1) {
-			updateArmMaterial(arm1, currentArm);
+			if (arm1 && currentArm === arm1) {
+				updateArmMaterial(arm1, currentArm);
+			}
+
+			if (arm2 && currentArm === arm2) {
+				updateArmMaterial(arm2, currentArm);
+			}
+
+			updateML = false;
 		}
+	});
 
-		if (arm2 && currentArm === arm2) {
-			updateArmMaterial(arm2, currentArm);
-		}
+	const thresholds = $derived(Object.values($thresholdsStore).sort((a, b) => a - b));
 
-		updateML = false;
-	}
-
-	$: thresholds = Object.values($thresholdsStore).sort((a, b) => a - b);
-
-	$: if (type === 1 && currentArm !== arm1) {
-		currentArm = arm1;
-
-		groupRef?.remove(arm2);
-		groupRef?.add(arm1);
-	} else if (type === 2 && currentArm !== arm2) {
-		currentArm = arm2;
-
-		groupRef?.remove(arm1);
-		groupRef?.add(arm2);
-	}
-
-	$: if (thresholds?.length) {
-		arm1?.scale?.set(1, 1, 1);
-		onScroll(0);
-	}
-
-	onMount(() => {
-		(async () => {
-			const a1 = (await loadGLB('/models/arm.glb')) as { scene: { children: Scene[] } };
-			const a2 = (await loadGLB('/models/arm2.glb')) as { scene: { children: Scene[] } };
-
-			arm1 = a1.scene.children[0];
-			arm2 = a2.scene.children[0];
-
-			arm1.scale.set(0, 0, 0);
-			arm2.scale.set(1, 1, 1);
-
+	$effect(() => {
+		if (type === '1' && currentArm !== arm1 && arm1 && groupRef) {
 			currentArm = arm1;
-			updateArmMaterial(arm1, currentArm);
 
-			const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
-
-			const groupLight1 = new Group();
-			groupLight1.position.set(...lights.light1.value);
-			const directionalLight1 = new DirectionalLight(
-				new Color(lights.lightsColor),
-				lights.light1Intensity.value
-			);
-
-			const groupLight2 = new Group();
-			groupLight2.position.set(...lights.light2.value);
-			const directionalLight2 = new DirectionalLight(
-				new Color(lights.lightsColor),
-				lights.light2Intensity.value
-			);
-
-			groupLight1.add(directionalLight1);
-			groupLight2.add(directionalLight2);
-
-			parentRef = new Group();
-			groupRef = new Group();
-
+			if (arm2) groupRef.remove(arm2);
 			groupRef.add(arm1);
-			parentRef.add(groupRef);
+		} else if (type === '2' && currentArm !== arm2 && arm2 && groupRef) {
+			currentArm = arm2;
 
-			renderer?.scene?.add(ambientLight1);
-			renderer?.scene?.add(groupLight1);
-			renderer?.scene?.add(groupLight2);
-			renderer?.scene?.add(parentRef);
+			if (arm1) groupRef.remove(arm1);
+			groupRef.add(arm2);
+		}
+	});
 
-			const unsubscribe = renderer.onFrame((state) => {
-				if (!parentRef) return;
+	$effect(() => {
+		if (thresholds?.length) {
+			arm1?.scale?.set(1, 1, 1);
+			onScroll(0);
+		}
+	});
 
-				const t = offset + state.clock.getElapsedTime();
-				parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
-				parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
-				parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
+	$effect(() => {
+		if (typeof window !== 'undefined' && renderer) {
+			(async () => {
+				const a1 = (await loadGLB('/models/arm.glb')) as { scene: { children: Scene[] } };
+				const a2 = (await loadGLB('/models/arm2.glb')) as { scene: { children: Scene[] } };
 
-				let yPosition = Math.sin((t / 4) * speed) / 10;
-				yPosition = MathUtils.mapLinear(
-					yPosition,
-					-0.1,
-					0.1,
-					floatingRange?.[0] ?? -0.1,
-					floatingRange?.[1] ?? 0.1
+				arm1 = a1.scene.children[0];
+				arm2 = a2.scene.children[0];
+
+				arm1.scale.set(0, 0, 0);
+				arm2.scale.set(1, 1, 1);
+
+				currentArm = arm1;
+				updateArmMaterial(arm1, currentArm);
+
+				const ambientLight1 = new AmbientLight(new Color(lights.ambientColor));
+
+				const groupLight1 = new Group();
+				groupLight1.position.set(...lights.light1.value);
+				const directionalLight1 = new DirectionalLight(
+					new Color(lights.lightsColor),
+					lights.light1Intensity.value
 				);
 
-				parentRef.position.y = yPosition * floatIntensity;
-			});
+				const groupLight2 = new Group();
+				groupLight2.position.set(...lights.light2.value);
+				const directionalLight2 = new DirectionalLight(
+					new Color(lights.lightsColor),
+					lights.light2Intensity.value
+				);
 
-			return () => {
-				if (unsubscribe) {
-					unsubscribe();
-				}
-			};
-		})();
+				groupLight1.add(directionalLight1);
+				groupLight2.add(directionalLight2);
+
+				parentRef = new Group();
+				groupRef = new Group();
+
+				groupRef.add(arm1);
+				parentRef.add(groupRef);
+
+				renderer?.scene?.add(ambientLight1);
+				renderer?.scene?.add(groupLight1);
+				renderer?.scene?.add(groupLight2);
+				renderer?.scene?.add(parentRef);
+
+				const unsubscribe = renderer.onFrame((state: { clock: Clock }) => {
+					if (!parentRef) return;
+
+					const t = offset + state.clock.getElapsedTime();
+					parentRef.rotation.x = (Math.cos((t / 4) * speed) / 8) * rotationIntensity;
+					parentRef.rotation.y = (Math.sin((t / 4) * speed) / 8) * rotationIntensity;
+					parentRef.rotation.z = (Math.sin((t / 4) * speed) / 20) * rotationIntensity;
+
+					let yPosition = Math.sin((t / 4) * speed) / 10;
+					yPosition = MathUtils.mapLinear(
+						yPosition,
+						-0.1,
+						0.1,
+						floatingRange?.[0] ?? -0.1,
+						floatingRange?.[1] ?? 0.1
+					);
+
+					parentRef.position.y = yPosition * floatIntensity;
+				});
+
+				return () => {
+					if (unsubscribe) {
+						unsubscribe();
+					}
+				};
+			})();
+		}
 	});
 
 	function onScroll(scroll: number) {
@@ -324,7 +335,7 @@
 		groupRef.position.copy(_position);
 		groupRef.rotation.copy(_rotation);
 
-		type = to.type;
+		type = to.type.toString();
 	}
 
 	useScroll(({ scroll }) => {

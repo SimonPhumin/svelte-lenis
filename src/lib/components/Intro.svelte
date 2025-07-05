@@ -1,55 +1,54 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import cn from 'clsx';
 
 	import { browser } from '$app/environment';
 	import { lenisStore } from '$lib/stores/lenis';
-	import { introOutStore, setIntroOutStore } from '$lib/stores/introOut';
+	import { setIntroOutStore } from '$lib/stores/introOut';
 	import { useMediaQuery } from '$lib/lifecycle-functions/useMediaQuery';
 
 	import LNS from './LNS.svelte';
 	import EI from './EI.svelte';
 
-	const isMobile = useMediaQuery('(max-width: 800px)');
+	const { isMatch: isMobile } = useMediaQuery('(max-width: 800px)');
 
-	let isLoaded = false;
-	let scroll = false;
+	let isLoaded = $state(false);
+	let scroll = $state(false);
 
-	$: if (browser && $isMobile) {
-		document.documentElement.classList.toggle('intro', false);
-	}
-
-	$: if (browser && $lenisStore) {
-		if (scroll) {
-			$lenisStore.start();
+	$effect(() => {
+		if (browser && $isMobile) {
 			document.documentElement.classList.toggle('intro', false);
-		} else {
-			setTimeout(() => {
-				$lenisStore?.stop();
-			}, 0);
+		}
+	});
 
+	$effect(() => {
+		if (browser && $lenisStore) {
+			if (scroll) {
+				$lenisStore.start();
+				document.documentElement.classList.toggle('intro', false);
+			} else {
+				setTimeout(() => {
+					$lenisStore?.stop();
+				}, 0);
+
+				document.documentElement.classList.toggle('intro', true);
+			}
+		}
+	});
+
+	$effect(() => {
+		if (browser && !scroll) {
 			document.documentElement.classList.toggle('intro', true);
 		}
-	}
+	});
 
-	$: if (browser && !scroll) {
-		document.documentElement.classList.toggle('intro', true);
-	}
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			setTimeout(() => (isLoaded = true), 1000);
 
-	let EIClassName = '';
-
-	$: if ($introOutStore) {
-		EIClassName = 'translate';
-	} else {
-		EIClassName = '';
-	}
-
-	onMount(() => {
-		setTimeout(() => (isLoaded = true), 1000);
-
-		if ($isMobile) {
-			scroll = true;
-			setIntroOutStore(true);
+			if ($isMobile) {
+				scroll = true;
+				setIntroOutStore(true);
+			}
 		}
 	});
 
@@ -66,10 +65,10 @@
 	}
 </script>
 
-<div class={cn('wrapper', isLoaded && 'out')} on:transitionend={onTransitionEnd}>
+<div class={cn('wrapper', isLoaded && 'out')} ontransitionend={onTransitionEnd}>
 	<div class={cn(isLoaded && 'relative')}>
 		<LNS {isLoaded} isIntro={true} fill="var(--black)" />
-		<EI {isLoaded} isIntro={true} fill="var(--black)" bind:class={EIClassName} />
+		<EI {isLoaded} isIntro={true} fill="var(--black)" />
 	</div>
 </div>
 
